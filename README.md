@@ -18,9 +18,14 @@ This is an n8n community node for reading data from SAP HANA databases and HDI c
 
 ### Option 1: npm Installation (Recommended)
 
-1. Navigate to your n8n installation directory
+1. Create the community nodes folder and navigate to it:
+   ```bash
+   mkdir -p ~/.n8n/nodes
+   cd ~/.n8n/nodes
+   ```
 2. Install the package:
    ```bash
+   test -f package.json || npm init -y
    npm install n8n-nodes-sap-hana-data
    ```
 3. Restart your n8n instance
@@ -46,13 +51,104 @@ This is an n8n community node for reading data from SAP HANA databases and HDI c
 4. Link the package locally:
    ```bash
    npm pack
-   cd ~/.n8n
-   npm install "C:\path\to\n8n-nodes-sap-ai-core\n8n-nodes-sap-hana-data-1.0.0.tgz"
+   mkdir -p ~/.n8n/nodes
+   cd ~/.n8n/nodes
+   test -f package.json || npm init -y
+   npm install /path/to/n8n-nodes-sap-hana-data-*.tgz
    ```
 
 5. Restart your n8n instance
 
 After installing the node, you can use it like any other node in n8n.
+
+### Option 3: Docker (Manual Installation)
+
+This option is for self-hosted n8n instances running in Docker (including Docker Compose). The key is to use a persistent volume for the n8n user folder so the installed node survives container restarts/recreates.
+
+**Default paths (official n8n image):**
+- User folder: `/home/node/.n8n` (or `$N8N_USER_FOLDER` if you override it)
+- Community nodes folder: `/home/node/.n8n/nodes`
+
+Replace `<n8n_container>` in the commands below with your container name/ID (check with `docker ps`). If you use Docker Compose, you can usually replace `docker exec`/`docker restart` with `docker compose exec n8n`/`docker compose restart n8n`.
+
+#### 3A) Install from npm inside the running container
+
+1. Ensure your container uses a persistent volume for `/home/node/.n8n`.
+   - Docker Compose example (snippet):
+     ```yaml
+     services:
+       n8n:
+         image: n8nio/n8n:latest
+         ports:
+           - "5678:5678"
+         volumes:
+           - n8n_data:/home/node/.n8n
+     volumes:
+       n8n_data:
+     ```
+
+2. Open a shell inside the container:
+   ```bash
+   docker exec -it <n8n_container> sh
+   ```
+
+3. Inside the container, install the node:
+   ```bash
+   mkdir -p /home/node/.n8n/nodes
+   cd /home/node/.n8n/nodes
+   test -f package.json || npm init -y
+   npm install n8n-nodes-sap-hana-data
+   exit
+   ```
+
+4. Restart n8n:
+   ```bash
+   docker restart <n8n_container>
+   ```
+
+#### 3B) Install from a local `.tgz` (no internet access in the container)
+
+1. On your host machine, build and pack this repository:
+   ```bash
+   npm ci
+   npm run build
+   npm pack
+   ```
+
+2. Copy the generated tarball into the container:
+   ```bash
+   docker cp n8n-nodes-sap-hana-data-*.tgz <n8n_container>:/tmp/
+   ```
+
+3. Open a shell inside the container:
+   ```bash
+   docker exec -it <n8n_container> sh
+   ```
+
+4. Inside the container, install it and exit:
+   ```bash
+   mkdir -p /home/node/.n8n/nodes
+   cd /home/node/.n8n/nodes
+   test -f package.json || npm init -y
+   npm install /tmp/n8n-nodes-sap-hana-data-*.tgz
+   exit
+   ```
+
+5. Restart n8n:
+   ```bash
+   docker restart <n8n_container>
+   ```
+
+#### Troubleshooting (Docker)
+
+- If you bind-mount a host folder to `/home/node/.n8n` and `npm install` fails with `EACCES`, fix the ownership/permissions of the mounted directory (the container runs as user `node`, often UID `1000`):
+  ```bash
+  sudo chown -R 1000:1000 ./n8n_data
+  ```
+- If the node does not show up after restarting, verify the install inside the container:
+  ```bash
+  ls -la /home/node/.n8n/nodes/node_modules/n8n-nodes-sap-hana-data
+  ```
 
 ## Configuration
 
