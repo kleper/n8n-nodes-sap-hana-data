@@ -37,10 +37,10 @@ export class SapHanaData implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Get All Records',
+						name: 'Get Many',
 						value: 'getAll',
-						description: 'Retrieve all records from a table',
-						action: 'Get all records from table',
+						description: 'Retrieve many records from a table',
+						action: 'Get many records from table',
 					},
 					{
 						name: 'Get Records with Filter',
@@ -50,7 +50,6 @@ export class SapHanaData implements INodeType {
 					},
 				],
 				default: 'getAll',
-				description: 'Choose the operation to perform',
 			},
 
 			// Table name field
@@ -60,7 +59,6 @@ export class SapHanaData implements INodeType {
 				type: 'string',
 				default: '',
 				placeholder: 'e.g., CUSTOMERS',
-				description: 'Name of the table to read from',
 				required: true,
 			},
 
@@ -76,6 +74,22 @@ export class SapHanaData implements INodeType {
 					minValue: 0,
 					maxValue: 100000,
 				},
+			},
+
+			{
+				displayName: 'Include Metadata',
+				name: 'includeMetadata',
+				type: 'boolean',
+				default: true,
+				description: 'Whether to include query metadata in the output',
+			},
+
+			{
+				displayName: 'Return Array Format',
+				name: 'returnArrayFormat',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to return all rows as a single item with a data array',
 			},
 
 			// WHERE condition for filtered queries
@@ -170,9 +184,6 @@ export class SapHanaData implements INodeType {
 					// Execute based on operation
 					switch (operation) {
 						case 'getAll': {
-							results = await client.getAllRecords(tableName, columns);
-							
-							// Apply order by and limit if specified
 							if (orderBy || limit > 0) {
 								results = await client.getFilteredRecords(
 									tableName, 
@@ -181,6 +192,8 @@ export class SapHanaData implements INodeType {
 									orderBy || undefined, 
 									limit > 0 ? limit : undefined
 								);
+							} else {
+								results = await client.getAllRecords(tableName, columns);
 							}
 
 							queryInfo = {

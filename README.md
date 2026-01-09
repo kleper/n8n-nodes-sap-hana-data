@@ -121,6 +121,7 @@ Order By: PRICE DESC
 - n8n version 0.87.0 or later
 - Access to SAP HANA database or HDI container
 - Appropriate database permissions for SELECT operations
+- Note for n8n `2.x` Docker users: newer images may be based on Alpine (musl). This package uses the pure-JS `hdb` driver to avoid native binary loading issues (for example, `__strdup: symbol not found`).
 
 ## Sample Workflows
 

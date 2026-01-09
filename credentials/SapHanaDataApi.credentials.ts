@@ -94,10 +94,10 @@ export class SapHanaDataApi implements ICredentialType {
       name: 'encrypt',
       type: 'boolean',
       default: true,
-      description: 'Use SSL/TLS encryption for the connection (recommended for cloud instances)',
+      description: 'Whether to use SSL/TLS encryption for the connection (recommended for cloud instances)',
     },
     {
-      displayName: 'Connection Timeout (ms)',
+      displayName: 'Connection Timeout (Ms)',
       name: 'connectTimeout',
       type: 'number',
       default: 15000,
@@ -133,7 +133,7 @@ export class SapHanaDataApi implements ICredentialType {
       typeOptions: {
         theme: 'info',
       },
-      description: '💡 For HDI containers, get connection details from your service key JSON: Look for "credentials" section containing host, port, user, password, database_id, and schema fields.',
+      description: '💡 For HDI containers, get connection details from your service key JSON: Look for "credentials" section containing host, port, user, password, database_id, and schema fields',
     },
     {
       displayName: 'Database Connection Help',
