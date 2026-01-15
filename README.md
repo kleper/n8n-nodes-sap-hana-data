@@ -26,9 +26,16 @@ This is an n8n community node for reading data from SAP HANA databases and HDI c
 2. Install the package:
    ```bash
    test -f package.json || npm init -y
-   npm install n8n-nodes-sap-hana-data
+   npm install n8n-nodes-sap-hana-data@^1.0.2
    ```
 3. Restart your n8n instance
+
+### Troubleshooting: `__strdup: symbol not found`
+
+If you see an install error like `__strdup: symbol not found` coming from `@sap/hana-client`, you are installing an older package version (≤ `1.0.1`) that depends on the native SAP driver. This fails on Alpine/musl-based n8n images.
+
+- Use `n8n-nodes-sap-hana-data@^1.0.2` (this repo switches to the pure-JS `hdb` driver).
+- If `npm` reports `No match found for version 1.0.2`, install from a local `.tgz` via Option 3B below, or switch to a glibc-based n8n image.
 
 ### Option 2: Development Setup
 
@@ -97,7 +104,7 @@ Replace `<n8n_container>` in the commands below with your container name/ID (che
    mkdir -p /home/node/.n8n/nodes
    cd /home/node/.n8n/nodes
    test -f package.json || npm init -y
-   npm install n8n-nodes-sap-hana-data
+   npm install n8n-nodes-sap-hana-data@^1.0.2
    exit
    ```
 
